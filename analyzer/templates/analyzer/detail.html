@@ -1,0 +1,36 @@
+{% extends "analyzer/base.html" %}{% load ioc_extras %}
+{% block title %}{{ defanged }} · IOC Analyzer{% endblock %}
+{% block content %}
+<p class="hint"><a href="{% url 'index' %}">&larr; New lookup</a></p>
+<h1 class="mono">{{ defanged }}</h1>
+<p class="lede">{{ lookup.kind|upper }} · checked {{ lookup.created_at|date:"d M Y, H:i" }}</p>
+
+<div class="panel verdict">
+  <span class="badge {{ lookup.verdict }}">{{ lookup.get_verdict_display }}</span>
+  <div class="score">{{ lookup.score }}<small> / 100 risk</small></div>
+  <div class="meter" aria-hidden="true"><span style="width: {{ lookup.score }}%"></span></div>
+</div>
+
+<h2>Sources</h2>
+<div class="cards">
+  {% for r in lookup.results %}
+  <div class="card">
+    <h3>{{ r.source }}
+      {% if r.status == "ok" %}<span class="badge {% if r.score >= 70 %}malicious{% elif r.score >= 25 %}suspicious{% else %}clean{% endif %}">{{ r.score }}</span>
+      {% else %}<span class="badge unknown">{{ r.status|label }}</span>{% endif %}
+    </h3>
+    <p>{{ r.summary }}</p>
+    {% if r.data %}
+    <dl class="kv">
+      {% for k, v in r.data.items %}{% if v and k != "scans" and k != "stats" %}<dt>{{ k }}</dt><dd>{{ v|display }}</dd>{% endif %}{% endfor %}
+      {% if r.data.stats %}<dt>engines</dt><dd>{% for k, v in r.data.stats.items %}{{ k }}: {{ v }}{% if not forloop.last %}, {% endif %}{% endfor %}</dd>{% endif %}
+    </dl>
+    {% endif %}
+    {% if r.link %}<p style="margin-top:10px"><a href="{{ r.link }}" target="_blank" rel="noopener noreferrer">Open in {{ r.source }} &rarr;</a></p>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<h2>API</h2>
+<p class="hint">Same result as JSON: <a href="{% url 'api-lookup-detail' lookup.pk %}"><code>/api/lookups/{{ lookup.pk }}/</code></a></p>
+{% endblock %}

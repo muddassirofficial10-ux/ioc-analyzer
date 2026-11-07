@@ -1,0 +1,33 @@
+{% extends "analyzer/base.html" %}
+{% block title %}History · IOC Analyzer{% endblock %}
+{% block content %}
+<h1>Lookup history</h1>
+<p class="lede pills">
+  Filter:
+  <a href="{% url 'history' %}">All</a>
+  {% for value, label in verdicts %}<a href="?verdict={{ value }}">{{ label }}</a>{% endfor %}
+</p>
+{% if page.object_list %}
+<div class="table-scroll"><table>
+  <thead><tr><th>Indicator</th><th>Verdict</th><th>Type</th><th>Score</th><th>When</th></tr></thead>
+  <tbody>
+  {% for l in page %}
+  <tr>
+    <td><a class="mono" href="{% url 'lookup-detail' l.pk %}">{{ l.indicator|truncatechars:60 }}</a></td>
+    <td><span class="badge {{ l.verdict }}">{{ l.get_verdict_display }}</span></td>
+    <td>{{ l.kind }}</td>
+    <td>{{ l.score }}</td>
+    <td>{{ l.created_at|date:"d M, H:i" }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+<div class="pager">
+  {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}{% if verdict %}&verdict={{ verdict }}{% endif %}">&larr; Newer</a>{% endif %}
+  <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}<a href="?page={{ page.next_page_number }}{% if verdict %}&verdict={{ verdict }}{% endif %}">Older &rarr;</a>{% endif %}
+</div>
+{% else %}
+<p class="hint">Nothing here yet.</p>
+{% endif %}
+{% endblock %}

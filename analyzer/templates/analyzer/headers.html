@@ -1,0 +1,54 @@
+{% extends "analyzer/base.html" %}
+{% block title %}Email headers · IOC Analyzer{% endblock %}
+{% block content %}
+<h1>Phishing email header check</h1>
+<p class="lede">Paste the raw headers (Gmail: <em>Show original</em> · Outlook: <em>View message source</em>). Analysed locally &mdash; nothing is sent anywhere.</p>
+
+<form method="post" class="panel">
+  {% csrf_token %}
+  <textarea name="headers" placeholder="Received: from ...&#10;Authentication-Results: ...&#10;From: ...&#10;Reply-To: ..." aria-label="Raw email headers">{{ raw }}</textarea>
+  <div style="margin-top:12px"><button type="submit">Analyze headers</button></div>
+</form>
+
+{% if report %}
+<h2>Result <span class="badge {{ report.risk }}">{{ report.risk }} risk</span></h2>
+<div class="cards">
+  <div class="card">
+    <h3>Sender</h3>
+    <dl class="kv">
+      <dt>Subject</dt><dd>{{ report.subject|default:"—" }}</dd>
+      <dt>From</dt><dd>{{ report.from_address|default:"—" }}</dd>
+      <dt>Reply-To</dt><dd>{{ report.reply_to|default:"—" }}</dd>
+      <dt>Return-Path</dt><dd>{{ report.return_path|default:"—" }}</dd>
+    </dl>
+  </div>
+  <div class="card">
+    <h3>Authentication</h3>
+    <dl class="kv">
+      <dt>SPF</dt><dd>{{ report.auth.spf|default:"not found" }}</dd>
+      <dt>DKIM</dt><dd>{{ report.auth.dkim|default:"not found" }}</dd>
+      <dt>DMARC</dt><dd>{{ report.auth.dmarc|default:"not found" }}</dd>
+    </dl>
+  </div>
+</div>
+
+<h2>Findings</h2>
+<ul class="findings">
+  {% for f in report.findings %}
+  <li><span class="badge {{ f.severity }}">{{ f.severity }}</span><div><strong>{{ f.title }}</strong><span class="detail">{{ f.detail }}</span></div></li>
+  {% endfor %}
+</ul>
+
+{% if report.indicators %}
+<h2>Check these against threat intel</h2>
+<div class="cards">
+  {% for i in report.indicators %}
+  <form method="post" action="{% url 'index' %}" class="card" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+    {% csrf_token %}<input type="hidden" name="indicator" value="{{ i }}">
+    <code>{{ i }}</code><button type="submit">Analyze</button>
+  </form>
+  {% endfor %}
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}

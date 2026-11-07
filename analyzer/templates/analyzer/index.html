@@ -1,0 +1,35 @@
+{% extends "analyzer/base.html" %}
+{% block content %}
+<h1>Check an indicator</h1>
+<p class="lede">Paste an IP address, domain, URL or file hash (MD5/SHA1/SHA256). Defanged input like <code>hxxp://evil[.]com</code> is fine.</p>
+
+<form method="post" class="panel">
+  {% csrf_token %}
+  <div class="search">
+    <input name="indicator" placeholder="e.g. 185.220.101.1 or hxxps://login-micros0ft[.]com" autofocus autocomplete="off" aria-label="Indicator">
+    <button type="submit">Analyze</button>
+  </div>
+  <div class="sources">
+    {% for s in sources %}<span class="chip {% if s.enabled %}on{% endif %}">{{ s.name }} {% if s.enabled %}on{% else %}no API key{% endif %}</span>{% endfor %}
+  </div>
+</form>
+
+<h2>Recent lookups</h2>
+{% if recent %}
+<div class="table-scroll"><table>
+  <thead><tr><th>Indicator</th><th>Verdict</th><th>Type</th><th>When</th></tr></thead>
+  <tbody>
+  {% for l in recent %}
+    <tr>
+      <td><a class="mono" href="{% url 'lookup-detail' l.pk %}">{{ l.indicator|truncatechars:60 }}</a></td>
+      <td><span class="badge {{ l.verdict }}">{{ l.get_verdict_display }}</span></td>
+      <td>{{ l.kind }}</td>
+      <td>{{ l.created_at|timesince }} ago</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}
+<p class="hint">No lookups yet.</p>
+{% endif %}
+{% endblock %}

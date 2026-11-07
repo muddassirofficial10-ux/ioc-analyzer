@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt ruff
+      - name: Lint
+        run: ruff check .
+      - name: Django system checks (production settings)
+        env:
+          DJANGO_DEBUG: "False"
+          DJANGO_SECRET_KEY: ci-only-secret-key-that-is-long-enough-for-checks-1234567890
+          DJANGO_ALLOWED_HOSTS: example.com
+        run: python manage.py check --deploy --fail-level ERROR
+      - name: Migrations are up to date
+        run: python manage.py makemigrations --check --dry-run
+      - name: Tests
+        run: python manage.py test analyzer -v 2
+
+  deploy:
+    # Render auto-deploys on push; this job only triggers the deploy hook if you add one.
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy hook
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$RENDER_DEPLOY_HOOK" ]; then curl -fsS -X POST "$RENDER_DEPLOY_HOOK"; else echo "No RENDER_DEPLOY_HOOK secret set - skipping"; fi

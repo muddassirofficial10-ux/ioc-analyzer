@@ -1,0 +1,7 @@
+line-length = 140
+target-version = "py311"
+exclude = ["analyzer/migrations"]
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]

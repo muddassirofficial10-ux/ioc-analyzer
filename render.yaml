@@ -1,0 +1,24 @@
+# One-click deploy on Render (free tier): New + > Blueprint > pick this repo.
+services:
+  - type: web
+    name: ioc-analyzer
+    runtime: python
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: gunicorn config.wsgi:application
+    healthCheckPath: /api/health/
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: .onrender.com
+      - key: VIRUSTOTAL_API_KEY
+        sync: false
+      - key: ABUSEIPDB_API_KEY
+        sync: false
+      - key: URLSCAN_API_KEY
+        sync: false
