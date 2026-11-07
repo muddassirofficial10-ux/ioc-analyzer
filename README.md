@@ -24,7 +24,7 @@ Python 3.12 · Django 5.1 · Django REST Framework · Requests · SQLite · Whit
 ## Quick start
 
 ```bash
-git clone https://github.com/<your-username>/ioc-analyzer.git
+git clone https://github.com/muddassirofficial10-ux/ioc-analyzer.git
 cd ioc-analyzer
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
