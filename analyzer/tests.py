@@ -203,7 +203,7 @@ class ApiAndPageTests(TestCase):
         page = self.client.get(resp["Location"])
         self.assertContains(page, "8[.]8[.]8[.]8")
         self.assertContains(page, "Malicious")
-        self.assertContains(self.client.get(reverse("history")), "8.8.8.8")
+        self.assertContains(self.client.get(reverse("history")), "8[.]8[.]8[.]8")
         self.assertContains(self.client.post(reverse("email-headers"), {"headers": PHISH_HEADERS}), "high risk")
 
     def test_health(self):

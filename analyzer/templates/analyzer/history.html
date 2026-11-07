@@ -1,4 +1,4 @@
-{% extends "analyzer/base.html" %}
+{% extends "analyzer/base.html" %}{% load ioc_extras %}
 {% block title %}History · IOC Analyzer{% endblock %}
 {% block content %}
 <h1>Lookup history</h1>
@@ -13,7 +13,7 @@
   <tbody>
   {% for l in page %}
   <tr>
-    <td><a class="mono" href="{% url 'lookup-detail' l.pk %}">{{ l.indicator|truncatechars:60 }}</a></td>
+    <td><a class="mono" href="{% url 'lookup-detail' l.pk %}">{{ l.indicator|defanged|truncatechars:70 }}</a></td>
     <td><span class="badge {{ l.verdict }}">{{ l.get_verdict_display }}</span></td>
     <td>{{ l.kind }}</td>
     <td>{{ l.score }}</td>

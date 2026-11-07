@@ -1,4 +1,4 @@
-{% extends "analyzer/base.html" %}
+{% extends "analyzer/base.html" %}{% load ioc_extras %}
 {% block content %}
 <h1>Check an indicator</h1>
 <p class="lede">Paste an IP address, domain, URL or file hash (MD5/SHA1/SHA256). Defanged input like <code>hxxp://evil[.]com</code> is fine.</p>
@@ -21,7 +21,7 @@
   <tbody>
   {% for l in recent %}
     <tr>
-      <td><a class="mono" href="{% url 'lookup-detail' l.pk %}">{{ l.indicator|truncatechars:60 }}</a></td>
+      <td><a class="mono" href="{% url 'lookup-detail' l.pk %}">{{ l.indicator|defanged|truncatechars:70 }}</a></td>
       <td><span class="badge {{ l.verdict }}">{{ l.get_verdict_display }}</span></td>
       <td>{{ l.kind }}</td>
       <td>{{ l.created_at|timesince }} ago</td>

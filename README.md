@@ -1,5 +1,9 @@
 # IOC Analyzer
 
+**Live demo:** https://ioc-analyzer-exw0.onrender.com · [![CI](https://github.com/muddassirofficial10-ux/ioc-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/muddassirofficial10-ux/ioc-analyzer/actions/workflows/ci.yml)
+
+> Free hosting: the demo sleeps when idle, so the first visit can take ~30–60 s. The demo's lookup history resets on each redeploy.
+
 A Django web app and REST API that automates the first steps of SOC phishing and alert triage.
 
 Paste an **IP address, domain, URL or file hash** and it queries **VirusTotal, AbuseIPDB and urlscan.io** in parallel, combines their results into a single risk score and verdict, and saves every lookup to a searchable history. A separate **email header analyzer** flags SPF/DKIM/DMARC failures, spoofed senders and Reply-To tricks, and lists the relay IPs and domains worth investigating.
