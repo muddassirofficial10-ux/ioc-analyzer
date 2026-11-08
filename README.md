@@ -1,6 +1,8 @@
-# IOC Analyzer
+# IOCmatrix
 
-**Live demo:** https://ioc-analyzer-exw0.onrender.com · [![CI](https://github.com/muddassirofficial10-ux/ioc-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/muddassirofficial10-ux/ioc-analyzer/actions/workflows/ci.yml)
+*Multi-source IOC and phishing triage for SOC analysts.*
+
+**Live demo:** https://ioc-analyzer-exw0.onrender.com · [![CI](https://github.com/muddassirofficial10-ux/iocmatrix/actions/workflows/ci.yml/badge.svg)](https://github.com/muddassirofficial10-ux/iocmatrix/actions/workflows/ci.yml)
 
 > Free hosting: the demo sleeps when idle, so the first visit can take ~30–60 s. The demo's lookup history resets on each redeploy.
 
@@ -28,8 +30,8 @@ Python 3.12 · Django 5.1 · Django REST Framework · Requests · SQLite · Whit
 ## Quick start
 
 ```bash
-git clone https://github.com/muddassirofficial10-ux/ioc-analyzer.git
-cd ioc-analyzer
+git clone https://github.com/muddassirofficial10-ux/iocmatrix.git
+cd iocmatrix
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env        # then add your free API keys

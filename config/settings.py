@@ -1,4 +1,4 @@
-"""Django settings for the IOC Analyzer project.
+"""Django settings for the IOCmatrix project.
 
 All secrets and API keys are read from environment variables so nothing
 sensitive is committed to the repository. See `.env.example`.
