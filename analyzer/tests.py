@@ -103,6 +103,65 @@ class ClientTests(TestCase):
         self.assertEqual(result.score, 90)
 
 
+@override_settings(THREAT_INTEL={**KEYS, "OTX_API_KEY": "", "MXTOOLBOX_API_KEY": "mx-test"})
+class NewSourceTests(TestCase):
+    """AlienVault OTX and MxToolbox (responses shaped like the real APIs)."""
+
+    def test_otx_many_pulses_is_malicious(self):
+        session = mock.Mock()
+        session.get.return_value = fake_response(payload={"validation": [], "pulse_info": {"count": 50, "pulses": [
+            {"name": "Tor exit nodes", "tags": ["tor", "scanner"], "malware_families": [{"display_name": "Mirai"}]},
+        ]}})
+        result = intel.AlienVaultOTXClient(session).lookup(ind.detect("185.220.101.1"))
+        self.assertEqual(result.status, intel.OK)
+        self.assertEqual(result.score, 85)
+        self.assertEqual(result.data["malware_families"], ["Mirai"])
+        self.assertIn("/IPv4/185.220.101.1/general", session.get.call_args.args[0])
+        self.assertNotIn("X-OTX-API-KEY", session.get.call_args.kwargs["headers"])  # works without a key
+
+    def test_otx_whitelisted_is_clean(self):
+        session = mock.Mock()
+        session.get.return_value = fake_response(payload={
+            "validation": [{"name": "Whitelisted IP"}, {"name": "Known False Positive"}],
+            "pulse_info": {"count": 3, "pulses": []},
+        })
+        result = intel.AlienVaultOTXClient(session).lookup(ind.detect("8.8.8.8"))
+        self.assertEqual(result.score, 0)
+        self.assertIn("Trusted", result.summary)
+
+    def test_otx_paths_per_type(self):
+        client = intel.AlienVaultOTXClient(mock.Mock())
+        self.assertTrue(client._path(ind.detect("example.com"))[0].startswith("domain/"))
+        self.assertTrue(client._path(ind.detect("mail.example.com"))[0].startswith("hostname/"))
+        self.assertTrue(client._path(ind.detect("44d88612fea8a8f36de82e1278abb02f"))[0].startswith("file/"))
+        self.assertTrue(client._path(ind.detect("2001:db8::1"))[0].startswith("IPv6/"))
+
+    def test_mxtoolbox_blacklisted(self):
+        session = mock.Mock()
+        session.get.return_value = fake_response(payload={
+            "Failed": [{"Name": "Spamhaus ZEN"}, {"Name": "Barracuda"}],
+            "Warnings": [], "Passed": [{"Name": f"BL{i}"} for i in range(80)], "Timeouts": [],
+        })
+        result = intel.MxToolboxClient(session).lookup(ind.detect("https://bad.example.com/login"))
+        self.assertEqual(result.score, 55)
+        self.assertIn("2 of 82", result.summary)
+        self.assertEqual(session.get.call_args.kwargs["params"], {"argument": "bad.example.com"})  # URL -> host
+        self.assertEqual(session.get.call_args.kwargs["headers"], {"Authorization": "mx-test"})
+
+    def test_mxtoolbox_quota_message(self):
+        session = mock.Mock()
+        session.get.return_value = fake_response(status=429)
+        result = intel.MxToolboxClient(session).lookup(ind.detect("example.com"))
+        self.assertEqual(result.status, intel.ERROR)
+        self.assertIn("paid", result.summary)
+
+    @override_settings(THREAT_INTEL={**KEYS, "MXTOOLBOX_API_KEY": ""})
+    def test_mxtoolbox_needs_key_and_skips_hashes(self):
+        client = intel.MxToolboxClient(mock.Mock())
+        self.assertEqual(client.lookup(ind.detect("example.com")).status, intel.NOT_CONFIGURED)
+        self.assertEqual(client.lookup(ind.detect("44d88612fea8a8f36de82e1278abb02f")).status, intel.UNSUPPORTED)
+
+
 class FakeClient(intel.BaseClient):
     name = "Fake"
     supports = (ind.IP, ind.DOMAIN, ind.URL, ind.HASH)

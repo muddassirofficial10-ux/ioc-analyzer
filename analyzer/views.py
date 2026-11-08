@@ -18,7 +18,13 @@ from .serializers import (
     header_report_to_dict,
 )
 
-SOURCE_KEYS = {"VirusTotal": "VIRUSTOTAL_API_KEY", "AbuseIPDB": "ABUSEIPDB_API_KEY", "urlscan.io": None}
+SOURCE_KEYS = {
+    "VirusTotal": "VIRUSTOTAL_API_KEY",
+    "AbuseIPDB": "ABUSEIPDB_API_KEY",
+    "urlscan.io": None,  # works without a key
+    "AlienVault OTX": None,  # works without a key
+    "MxToolbox": "MXTOOLBOX_API_KEY",
+}
 
 
 def _sources_status():

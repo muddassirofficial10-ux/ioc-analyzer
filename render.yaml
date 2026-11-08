@@ -22,3 +22,7 @@ services:
         sync: false
       - key: URLSCAN_API_KEY
         sync: false
+      - key: OTX_API_KEY
+        sync: false
+      - key: MXTOOLBOX_API_KEY
+        sync: false

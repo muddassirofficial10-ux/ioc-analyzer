@@ -6,14 +6,14 @@
 
 A Django web app and REST API that automates the first steps of SOC phishing and alert triage.
 
-Paste an **IP address, domain, URL or file hash** and it queries **VirusTotal, AbuseIPDB and urlscan.io** in parallel, combines their results into a single risk score and verdict, and saves every lookup to a searchable history. A separate **email header analyzer** flags SPF/DKIM/DMARC failures, spoofed senders and Reply-To tricks, and lists the relay IPs and domains worth investigating.
+Paste an **IP address, domain, URL or file hash** and it queries **VirusTotal, AbuseIPDB, AlienVault OTX, urlscan.io and MxToolbox** in parallel, combines their results into a single risk score and verdict, and saves every lookup to a searchable history. A separate **email header analyzer** flags SPF/DKIM/DMARC failures, spoofed senders and Reply-To tricks, and lists the relay IPs and domains worth investigating.
 
 It automates the manual OSINT workflow I used as a SOC Analyst: checking an indicator across several threat-intel sites, then deciding whether to escalate.
 
 ## Features
 
 - **Indicator detection**: recognises IPv4/IPv6, domains, URLs and MD5/SHA1/SHA256 hashes, and accepts *defanged* input (`hxxps://evil[.]com`, `1[.]2[.]3[.]4`).
-- **Parallel threat-intel lookups**: VirusTotal (all types), AbuseIPDB (public IPs), urlscan.io (domains/URLs/IPs). Private IPs are never sent out.
+- **Parallel threat-intel lookups**: VirusTotal (all types), AbuseIPDB (public IPs), urlscan.io (domains/URLs/IPs), AlienVault OTX community threat reports (all types, no key needed), MxToolbox blacklist checks (IPs/domains; needs a paid MxToolbox plan). Private IPs are never sent out.
 - **Verdict engine**: each source gives a 0–100 score; the strongest signal sets the verdict (*Malicious*, *Suspicious*, *No detections*, *Unknown*).
 - **Fault tolerant**: a missing API key, rate limit or network error is reported per source and never breaks the analysis.
 - **Email header triage**: runs offline (headers never leave the server). Checks SPF/DKIM/DMARC, From vs Reply-To/Return-Path mismatches and display-name spoofing, and extracts relay IPs. One click sends any extracted indicator to the analyzer.
@@ -63,7 +63,7 @@ curl -X POST http://127.0.0.1:8000/api/analyze/ \
 python manage.py test analyzer
 ```
 
-22 tests cover indicator parsing, each threat-intel client (mocked HTTP, so no keys or network are needed), the verdict logic, email header analysis, the API and the web pages.
+28 tests cover indicator parsing, each threat-intel client (mocked HTTP, so no keys or network are needed), the verdict logic, email header analysis, the API and the web pages.
 
 ## Deploy (free) on Render
 
@@ -77,7 +77,7 @@ python manage.py test analyzer
 ```
 analyzer/
   indicators.py     # refang/defang + indicator type detection
-  intel.py          # VirusTotal, AbuseIPDB, urlscan.io clients
+  intel.py          # VirusTotal, AbuseIPDB, urlscan.io, AlienVault OTX, MxToolbox clients
   services.py       # parallel lookups + verdict scoring
   email_headers.py  # SPF/DKIM/DMARC + spoofing checks
   views.py          # web pages + REST API

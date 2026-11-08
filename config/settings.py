@@ -107,6 +107,9 @@ THREAT_INTEL = {
     "VIRUSTOTAL_API_KEY": os.environ.get("VIRUSTOTAL_API_KEY", ""),
     "ABUSEIPDB_API_KEY": os.environ.get("ABUSEIPDB_API_KEY", ""),
     "URLSCAN_API_KEY": os.environ.get("URLSCAN_API_KEY", ""),
+    "OTX_API_KEY": os.environ.get("OTX_API_KEY", ""),  # optional: OTX works without a key at lower rate limits
+    "OTX_TIMEOUT": float(os.environ.get("OTX_TIMEOUT", "25")),  # OTX answers slowly for heavily reported IOCs
+    "MXTOOLBOX_API_KEY": os.environ.get("MXTOOLBOX_API_KEY", ""),  # blacklist checks need a paid plan
     "TIMEOUT": float(os.environ.get("THREAT_INTEL_TIMEOUT", "10")),
 }
 
